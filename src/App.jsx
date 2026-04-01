@@ -1,11 +1,12 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { fetchAQObservations, fetchAQForecast, processAQData } from './services/airquality';
 import { fetchPollen } from './services/pollen';
+import { searchMunicipalities } from './services/municipalities';
 import { AQCard } from './components/AQCard';
 import { AQChart } from './components/AQChart';
 import { Warning } from './components/Warning';
 import { AQDetails } from './components/AQDetails';
-import { NotificationButton } from './components/NotificationButton';
+import { subscribePush } from './services/push';
 import './App.css';
 
 async function reverseGeocode(lat, lng) {
@@ -17,14 +18,24 @@ async function reverseGeocode(lat, lng) {
   return data.address?.city || data.address?.town || data.address?.village || '';
 }
 
-async function geocodeSearch(query) {
+async function geocodeSuggest(query) {
   const res = await fetch(
-    `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=1`,
+    `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=5&addressdetails=1&countrycodes=fi&featuretype=settlement`,
     { headers: { 'User-Agent': 'PollyAir/1.0' } }
   );
   const data = await res.json();
-  if (!data.length) throw new Error('Sijaintia ei löydy');
-  return { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon), name: data[0].display_name.split(',')[0] };
+  return data.map(r => ({
+    lat: parseFloat(r.lat),
+    lng: parseFloat(r.lon),
+    name: r.display_name.split(',')[0],
+    detail: [r.address?.city || r.address?.town || r.address?.village, r.address?.country].filter(Boolean).join(', '),
+  }));
+}
+
+async function geocodeSearch(query) {
+  const results = await geocodeSuggest(query);
+  if (!results.length) throw new Error('Sijaintia ei löydy');
+  return results[0];
 }
 
 export default function App() {
@@ -38,6 +49,9 @@ export default function App() {
   const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [searching, setSearching] = useState(false);
+  const [suggestions, setSuggestions] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const suggestTimer = useRef(null);
   const [isSearchedLocation, setIsSearchedLocation] = useState(false);
   const [selectedHour, setSelectedHour] = useState(null);
   const defaultLocation = useRef(null);
@@ -62,6 +76,18 @@ export default function App() {
 
   // Get location on mount
   useEffect(() => {
+    const initNotifications = async (lat, lng) => {
+      if (!('Notification' in window) || !import.meta.env.VITE_PUSH_SERVER_URL) return;
+      if (Notification.permission === 'denied') return;
+      if (localStorage.getItem('pollyair-notif-subscribed')) return;
+      try {
+        const permission = await Notification.requestPermission();
+        if (permission !== 'granted') return;
+        await subscribePush(lat, lng, 3);
+        localStorage.setItem('pollyair-notif-subscribed', '1');
+      } catch {}
+    };
+
     const fallback = () => {
       const loc = { lat: 60.1699, lng: 24.9384 };
       defaultLocation.current = loc;
@@ -69,6 +95,7 @@ export default function App() {
       setLocation(loc);
       setLocationName('Helsinki');
       setLoading(false);
+      initNotifications(loc.lat, loc.lng);
     };
 
     if (!navigator.geolocation) { fallback(); return; }
@@ -81,6 +108,7 @@ export default function App() {
         defaultLocationName.current = 'Helsinki';
         setLocation(loc);
         setLoading(false);
+        initNotifications(lat, lng);
         try {
           const name = await reverseGeocode(lat, lng);
           const resolvedName = name || 'Helsinki';
@@ -107,9 +135,29 @@ export default function App() {
     return () => clearInterval(id);
   }, [location, fetchData]);
 
+  const handleQueryChange = (e) => {
+    const val = e.target.value;
+    setSearchQuery(val);
+    clearTimeout(suggestTimer.current);
+    if (val.trim().length < 2) { setSuggestions([]); setShowSuggestions(false); return; }
+    const results = searchMunicipalities(val.trim()).map(m => ({ name: m.name, lat: m.lat, lng: m.lng, detail: '' }));
+    setSuggestions(results);
+    setShowSuggestions(results.length > 0);
+  };
+
+  const handleSuggestionSelect = (result) => {
+    setLocation({ lat: result.lat, lng: result.lng });
+    setLocationName(result.name);
+    setIsSearchedLocation(true);
+    setSearchQuery('');
+    setSuggestions([]);
+    setShowSuggestions(false);
+  };
+
   const handleSearch = async (e) => {
     e.preventDefault();
     if (!searchQuery.trim() || searching) return;
+    setShowSuggestions(false);
     setSearching(true);
     try {
       const result = await geocodeSearch(searchQuery.trim());
@@ -184,7 +232,6 @@ export default function App() {
           </div>
           <div className="app-header-right">
             {updatedStr && <span className="app-updated">{updatedStr}</span>}
-            <NotificationButton lat={location?.lat} lng={location?.lng} />
             <button
               className={`app-refresh${refreshing ? ' app-refresh--spinning' : ''}`}
               onClick={handleRefresh}
@@ -194,18 +241,33 @@ export default function App() {
             </button>
           </div>
         </div>
-        <form className="app-search" onSubmit={handleSearch}>
-          <input
-            className="app-search-input"
-            type="search"
-            placeholder="Hae kaupunki tai sijainti..."
-            value={searchQuery}
-            onChange={e => setSearchQuery(e.target.value)}
-          />
-          <button className="app-search-btn" type="submit" disabled={searching}>
-            {searching ? '…' : '→'}
-          </button>
-        </form>
+        <div className="app-search-wrap">
+          <form className="app-search" onSubmit={handleSearch}>
+            <input
+              className="app-search-input"
+              type="search"
+              placeholder="Hae kaupunki tai sijainti..."
+              value={searchQuery}
+              onChange={handleQueryChange}
+              onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
+              onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
+              autoComplete="off"
+            />
+            <button className="app-search-btn" type="submit" disabled={searching}>
+              {searching ? '…' : '→'}
+            </button>
+          </form>
+          {showSuggestions && (
+            <ul className="app-suggestions">
+              {suggestions.map((s, i) => (
+                <li key={i} className="app-suggestion" onMouseDown={() => handleSuggestionSelect(s)}>
+                  <span className="app-suggestion-name">{s.name}</span>
+                  {s.detail && <span className="app-suggestion-detail">{s.detail}</span>}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
       </header>
 
 

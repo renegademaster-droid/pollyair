@@ -20,7 +20,7 @@ export function AQCard({ currentIdx, trend, currentTime, isForecast }) {
     : null;
 
   return (
-    <div className="aq-card" style={{ background: AQ.bgColors[currentIdx] }}>
+    <div className="aq-card" style={{ background: AQ.bgColors[currentIdx], border: `1.5px solid ${AQ.colors[currentIdx]}55` }}>
       <div className="aq-card__index" style={{ color: AQ.colors[currentIdx] }}>
         {currentIdx}
       </div>
