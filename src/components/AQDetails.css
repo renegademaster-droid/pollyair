@@ -24,12 +24,6 @@
   border-radius: 12px;
   padding: 12px;
   cursor: pointer;
-  transition: border-color 0.15s;
-}
-
-.aqd-item--open {
-  border-color: var(--color-primary);
-  grid-column: span 2;
 }
 
 .aqd-item__header {
@@ -85,9 +79,10 @@
   margin-top: 32px;
 }
 
-.aqd-info {
-  margin: 10px 0 0;
-  font-size: 13px;
+.aqd-sheet-text {
+  padding: 16px;
+  font-size: 15px;
   color: var(--color-text);
-  line-height: 1.55;
+  line-height: 1.6;
+  margin: 0;
 }
