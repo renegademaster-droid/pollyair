@@ -1,0 +1,25 @@
+.map-wrapper {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+}
+
+.map-container {
+  position: absolute;
+  inset: 0;
+}
+
+.user-marker {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #2563eb;
+  border: 3px solid white;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.5);
+}
+
+/* Override MapLibre attribution position */
+.maplibregl-ctrl-bottom-left {
+  bottom: 4px !important;
+  left: 4px !important;
+}

@@ -1,0 +1,23 @@
+.notif-btn {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 8px;
+  line-height: 1;
+  opacity: 0.4;
+  transition: opacity 0.15s;
+}
+
+.notif-btn:hover:not(:disabled) {
+  opacity: 0.8;
+}
+
+.notif-btn--active {
+  opacity: 1;
+}
+
+.notif-btn:disabled {
+  cursor: default;
+}

@@ -1,0 +1,106 @@
+.aq-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 100;
+  display: flex;
+  align-items: flex-end;
+  animation: overlay-in 0.2s ease;
+}
+
+@keyframes overlay-in {
+  from { background: rgba(0, 0, 0, 0); }
+  to   { background: rgba(0, 0, 0, 0.4); }
+}
+
+.aq-modal-overlay--closing {
+  animation: overlay-out 0.25s ease forwards;
+}
+
+@keyframes overlay-out {
+  from { background: rgba(0, 0, 0, 0.4); }
+  to   { background: rgba(0, 0, 0, 0); }
+}
+
+.aq-modal {
+  width: 100%;
+  background: var(--color-bg);
+  border-radius: 16px 16px 0 0;
+  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 64px);
+  max-height: 80vh;
+  overflow-y: auto;
+  animation: sheet-in 0.28s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+@keyframes sheet-in {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+
+.aq-modal--closing {
+  animation: sheet-out 0.25s cubic-bezier(0.32, 0.72, 0, 1) forwards;
+}
+
+@keyframes sheet-out {
+  from { transform: translateY(0); }
+  to   { transform: translateY(100%); }
+}
+
+.aq-modal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 16px 12px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.aq-modal__title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.aq-modal__close {
+  background: none;
+  border: none;
+  font-size: 16px;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  padding: 4px 8px;
+}
+
+.aq-modal__body {
+  padding: 8px 0;
+}
+
+.aq-modal__row {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 12px 16px;
+  border-left: 4px solid transparent;
+}
+
+.aq-modal__index {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.aq-modal__label {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.aq-modal__desc {
+  font-size: 13px;
+  color: var(--color-text-muted);
+  line-height: 1.4;
+}
