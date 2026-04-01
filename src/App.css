@@ -255,7 +255,7 @@
 
 .app-main {
   flex: 1;
-  padding-bottom: env(safe-area-inset-bottom, 24px);
+  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 80px);
 }
 
 .app-error {
