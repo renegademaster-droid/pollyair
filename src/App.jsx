@@ -48,6 +48,10 @@ export default function App() {
   const [pollenData, setPollenData] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
   const [showNotifBanner, setShowNotifBanner] = useState(false);
+  const [pullDistance, setPullDistance] = useState(0);
+  const pullStartY = useRef(null);
+  const pulling = useRef(false);
+  const PULL_THRESHOLD = 72;
   const [searchQuery, setSearchQuery] = useState('');
   const [searching, setSearching] = useState(false);
   const [suggestions, setSuggestions] = useState([]);
@@ -175,6 +179,34 @@ export default function App() {
     setIsSearchedLocation(false);
   };
 
+  const handleTouchStart = (e) => {
+    if (window.scrollY === 0) {
+      pullStartY.current = e.touches[0].clientY;
+      pulling.current = true;
+    }
+  };
+
+  const handleTouchMove = (e) => {
+    if (!pulling.current || pullStartY.current === null) return;
+    const delta = e.touches[0].clientY - pullStartY.current;
+    if (delta <= 0) { setPullDistance(0); return; }
+    // Resistance: slows down pull after threshold
+    const dist = Math.min(delta * 0.5, PULL_THRESHOLD + 20);
+    setPullDistance(dist);
+  };
+
+  const handleTouchEnd = async () => {
+    if (!pulling.current) return;
+    pulling.current = false;
+    if (pullDistance >= PULL_THRESHOLD && !refreshing) {
+      setPullDistance(0);
+      await handleRefresh();
+    } else {
+      setPullDistance(0);
+    }
+    pullStartY.current = null;
+  };
+
   const handleNotifAllow = async () => {
     setShowNotifBanner(false);
     try {
@@ -226,8 +258,23 @@ export default function App() {
   );
   const displayPollutants = selectedHour?.isForecast ? null : aqData?.pollutants ?? null;
 
+  const pulled = pullDistance >= PULL_THRESHOLD;
+
   return (
-    <div className="app">
+    <div
+      className="app"
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+    >
+      {(pullDistance > 0 || refreshing) && (
+        <div
+          className={`pull-indicator${pulled ? ' pull-indicator--ready' : ''}`}
+          style={{ height: refreshing ? 48 : pullDistance }}
+        >
+          <span className={`pull-indicator__icon${refreshing ? ' pull-indicator__icon--spinning' : ''}`}>↻</span>
+        </div>
+      )}
       <header className="app-header">
         <div className="app-header-top">
           <div>

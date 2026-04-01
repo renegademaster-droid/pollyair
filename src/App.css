@@ -3,6 +3,33 @@
   display: flex;
   flex-direction: column;
   background: var(--color-bg);
+  overscroll-behavior-y: none;
+}
+
+.pull-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  transition: height 0.2s ease;
+  color: var(--color-text-muted);
+}
+
+.pull-indicator--ready {
+  color: var(--color-primary);
+}
+
+.pull-indicator__icon {
+  font-size: 22px;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.pull-indicator--ready .pull-indicator__icon {
+  transform: rotate(180deg);
+}
+
+.pull-indicator__icon--spinning {
+  animation: spin 0.7s linear infinite;
 }
 
 .loading {
