@@ -47,6 +47,7 @@ export default function App() {
   const [error, setError] = useState(null);
   const [pollenData, setPollenData] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
+  const [showNotifBanner, setShowNotifBanner] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [searching, setSearching] = useState(false);
   const [suggestions, setSuggestions] = useState([]);
@@ -76,16 +77,12 @@ export default function App() {
 
   // Get location on mount
   useEffect(() => {
-    const initNotifications = async (lat, lng) => {
+    const initNotifications = () => {
       if (!('Notification' in window) || !import.meta.env.VITE_PUSH_SERVER_URL) return;
+      if (Notification.permission === 'granted') return;
       if (Notification.permission === 'denied') return;
-      if (localStorage.getItem('pollyair-notif-subscribed')) return;
-      try {
-        const permission = await Notification.requestPermission();
-        if (permission !== 'granted') return;
-        await subscribePush(lat, lng, 3);
-        localStorage.setItem('pollyair-notif-subscribed', '1');
-      } catch {}
+      if (localStorage.getItem('pollyair-notif-dismissed')) return;
+      setShowNotifBanner(true);
     };
 
     const fallback = () => {
@@ -176,6 +173,20 @@ export default function App() {
     setLocation(defaultLocation.current);
     setLocationName(defaultLocationName.current);
     setIsSearchedLocation(false);
+  };
+
+  const handleNotifAllow = async () => {
+    setShowNotifBanner(false);
+    try {
+      const permission = await Notification.requestPermission();
+      if (permission !== 'granted') return;
+      if (location) await subscribePush(location.lat, location.lng, 3);
+    } catch {}
+  };
+
+  const handleNotifDismiss = () => {
+    setShowNotifBanner(false);
+    localStorage.setItem('pollyair-notif-dismissed', '1');
   };
 
   const handleRefresh = async () => {
@@ -270,6 +281,16 @@ export default function App() {
         </div>
       </header>
 
+
+      {showNotifBanner && (
+        <div className="notif-banner">
+          <span className="notif-banner__text">Haluatko ilmoituksia huonosta ilmanlaadusta?</span>
+          <div className="notif-banner__actions">
+            <button className="notif-banner__allow" onClick={handleNotifAllow}>Salli</button>
+            <button className="notif-banner__dismiss" onClick={handleNotifDismiss}>Ei nyt</button>
+          </div>
+        </div>
+      )}
 
       <main className="app-main">
         <AQCard
