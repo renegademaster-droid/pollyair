@@ -20,6 +20,17 @@ jobs:
 
       - run: npm install
 
+      - name: Verify secret is set
+        run: |
+          if [ -z "$VITE_PUSH_SERVER_URL" ]; then
+            echo "❌ VITE_PUSH_SERVER_URL ON TYHJÄ"
+            exit 1
+          else
+            echo "✅ VITE_PUSH_SERVER_URL on asetettu (pituus: ${#VITE_PUSH_SERVER_URL})"
+          fi
+        env:
+          VITE_PUSH_SERVER_URL: ${{ secrets.VITE_PUSH_SERVER_URL }}
+
       - run: npm run build
         env:
           VITE_PUSH_SERVER_URL: ${{ secrets.VITE_PUSH_SERVER_URL }}
