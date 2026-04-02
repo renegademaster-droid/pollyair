@@ -11,8 +11,7 @@ const ENFUSER_BOUNDS = [[60.1321, 24.58], [60.368, 25.1998]];
 const FINLAND_CENTER = [65, 26];
 const FINLAND_ZOOM   = 5;
 
-const SERVER = import.meta.env.VITE_PUSH_SERVER_URL;
-console.log('[AQMap v4] SERVER =', SERVER, '| enfuser url will be:', SERVER ? SERVER + '/api/enfuser-map' : 'null');
+const SERVER = import.meta.env.VITE_PUSH_SERVER_URL?.trim();
 
 function MapResizer() {
   const map = useMap();
@@ -23,9 +22,7 @@ function MapResizer() {
 function EnfuserOverlay({ url }) {
   const map = useMap();
   useEffect(() => {
-    console.log('[EnfuserOverlay] useEffect, url =', url);
     if (!url) return;
-    console.log('[EnfuserOverlay] ladataan:', url);
     const overlay = L.imageOverlay(url, ENFUSER_BOUNDS, { opacity: 0.85, zIndex: 200 });
     overlay.addTo(map);
     return () => overlay.remove();
