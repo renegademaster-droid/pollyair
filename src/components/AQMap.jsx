@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { MapContainer, TileLayer, CircleMarker, Tooltip, ImageOverlay, useMap } from 'react-leaflet';
+import L from 'leaflet';
+import { MapContainer, TileLayer, CircleMarker, Tooltip, useMap } from 'react-leaflet';
 import { fetchAQStations } from '../services/aqmap';
 import { AQ } from '../services/airquality';
 import 'leaflet/dist/leaflet.css';
@@ -15,6 +16,18 @@ const SERVER = import.meta.env.VITE_PUSH_SERVER_URL;
 function MapResizer() {
   const map = useMap();
   useEffect(() => { setTimeout(() => map.invalidateSize(), 50); }, [map]);
+  return null;
+}
+
+function EnfuserOverlay({ url }) {
+  const map = useMap();
+  useEffect(() => {
+    if (!url) return;
+    console.log('[EnfuserOverlay] ladataan:', url);
+    const overlay = L.imageOverlay(url, ENFUSER_BOUNDS, { opacity: 0.85, zIndex: 200 });
+    overlay.addTo(map);
+    return () => overlay.remove();
+  }, [url, map]);
   return null;
 }
 
@@ -57,14 +70,7 @@ export function AQMap({ selectedHour }) {
         />
 
         {/* ENFUSER high-res overlay for Helsinki metro */}
-        {enfuserUrl && (
-          <ImageOverlay
-            url={enfuserUrl}
-            bounds={ENFUSER_BOUNDS}
-            opacity={1}
-            zIndex={200}
-          />
-        )}
+        <EnfuserOverlay url={enfuserUrl} />
 
         {/* Station dots across Finland */}
         {stations.map((s, i) => (
