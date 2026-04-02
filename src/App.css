@@ -197,6 +197,20 @@
 
 .app-refresh:hover { color: var(--color-text); }
 
+.app-theme-toggle {
+  font-size: 18px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-text-muted);
+  padding: 6px;
+  border-radius: 8px;
+  line-height: 1;
+  transition: color 0.15s;
+}
+
+.app-theme-toggle:hover { color: var(--color-text); }
+
 .app-refresh--spinning {
   animation: spin 0.7s linear infinite;
 }
@@ -297,8 +311,6 @@
 }
 
 @media (prefers-color-scheme: dark) {
-  .app-error {
-    background: #2d1515;
-    color: #f87171;
-  }
+  :root:not([data-theme="light"]) .app-error { background: #2d1515; color: #f87171; }
 }
+:root[data-theme="dark"] .app-error { background: #2d1515; color: #f87171; }

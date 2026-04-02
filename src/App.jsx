@@ -40,6 +40,22 @@ async function geocodeSearch(query) {
 }
 
 export default function App() {
+  const [theme, setTheme] = useState(() => localStorage.getItem('pollyair-theme') || 'auto');
+
+  useEffect(() => {
+    const root = document.documentElement;
+    if (theme === 'auto') root.removeAttribute('data-theme');
+    else root.setAttribute('data-theme', theme);
+    localStorage.setItem('pollyair-theme', theme);
+  }, [theme]);
+
+  const isDark = theme === 'dark' ||
+    (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+
+  const toggleTheme = () => setTheme(prev =>
+    prev === 'auto' ? (isDark ? 'light' : 'dark') : prev === 'dark' ? 'light' : 'dark'
+  );
+
   const [location, setLocation] = useState(null);
   const [locationName, setLocationName] = useState('');
   const [aqData, setAqData] = useState(null);
@@ -299,6 +315,9 @@ export default function App() {
             >
               ↻
             </button>
+            <button className="app-theme-toggle" onClick={toggleTheme} aria-label="Vaihda teema">
+              {isDark ? '☀' : '☾'}
+            </button>
           </div>
         </div>
         <div className="app-search-wrap">
@@ -377,7 +396,7 @@ export default function App() {
           {error && <p className="app-error">{error}</p>}
         </main>
       ) : (
-        <AQMap selectedHour={selectedHour} />
+        <AQMap selectedHour={selectedHour} isDark={isDark} />
       )}
     </div>
   );
