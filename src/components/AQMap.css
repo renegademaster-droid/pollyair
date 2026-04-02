@@ -63,6 +63,10 @@
   pointer-events: none;
 }
 
+@media (prefers-color-scheme: dark) {
+  .aq-map__legend { background: rgba(26,29,39,0.92); }
+}
+
 .aq-map__legend-item {
   display: flex;
   align-items: center;
@@ -70,6 +74,11 @@
   font-size: 12px;
   font-weight: 500;
   color: #333;
+}
+
+@media (prefers-color-scheme: dark) {
+  .aq-map__legend-item { color: #e5e7eb; }
+  .aq-map__legend-src  { color: #6b7280; }
 }
 
 .aq-map__legend-dot {

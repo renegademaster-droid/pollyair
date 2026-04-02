@@ -295,3 +295,10 @@
   border-radius: 10px;
   font-size: 14px;
 }
+
+@media (prefers-color-scheme: dark) {
+  .app-error {
+    background: #2d1515;
+    color: #f87171;
+  }
+}

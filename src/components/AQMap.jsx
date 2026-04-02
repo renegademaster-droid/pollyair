@@ -64,7 +64,9 @@ export function AQMap({ selectedHour }) {
       >
         <MapResizer />
         <TileLayer
-          url="https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png"
+          url={`https://{s}.basemaps.cartocdn.com/${
+            window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark_nolabels' : 'light_nolabels'
+          }/{z}/{x}/{y}{r}.png`}
           attribution='&copy; <a href="https://carto.com/">CARTO</a> &copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>'
         />
 
