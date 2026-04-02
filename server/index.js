@@ -184,7 +184,7 @@ async function fetchEnfuserPng() {
 
   const match = wfsXml.match(/https:\/\/opendata\.fmi\.fi\/download[^"<\s]*/);
   if (!match) throw new Error('fileReference puuttuu WFS-vastauksesta');
-  const downloadUrl = match[0];
+  const downloadUrl = match[0].replace(/&amp;/g, '&');
 
   // 2. Download NetCDF
   console.log(`[enfuser] Ladataan NetCDF...`);
