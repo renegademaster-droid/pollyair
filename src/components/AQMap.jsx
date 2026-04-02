@@ -19,10 +19,13 @@ function MapResizer() {
 }
 
 export function AQMap({ selectedHour }) {
-  const [stations,   setStations]   = useState([]);
-  const [enfuserUrl, setEnfuserUrl] = useState(null);
-  const [loading,    setLoading]    = useState(false);
-  const [error,      setError]      = useState(false);
+  const [stations, setStations] = useState([]);
+  const [loading,  setLoading]  = useState(false);
+  const [error,    setError]    = useState(false);
+
+  const enfuserUrl = SERVER
+    ? `${SERVER}/api/enfuser-map?v=${Math.floor(Date.now() / (30 * 60 * 1000))}`
+    : null;
 
   // Fetch station data (for dots + rest-of-Finland context)
   useEffect(() => {
@@ -34,14 +37,6 @@ export function AQMap({ selectedHour }) {
       .catch(() => { setError(true); setLoading(false); });
   }, [selectedHour]);
 
-  // Fetch ENFUSER PNG from backend (cached 30min server-side)
-  useEffect(() => {
-    console.log('[AQMap] SERVER:', SERVER);
-    if (!SERVER) return;
-    // Add timestamp rounded to 30min to bust cache when data refreshes
-    const slot = Math.floor(Date.now() / (30 * 60 * 1000));
-    setEnfuserUrl(`${SERVER}/api/enfuser-map?v=${slot}`);
-  }, []);
 
   const timeLabel = selectedHour && !selectedHour.isForecast
     ? selectedHour.time.toLocaleTimeString('fi-FI', { hour: '2-digit', minute: '2-digit' })
