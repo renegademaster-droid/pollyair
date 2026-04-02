@@ -37,9 +37,9 @@ function parseSimple(xmlText) {
 }
 
 export async function fetchAQStations(time) {
-  // Use selected time or current time; query a 2h window so we always get data
+  // Observations have ~1-2h lag; query a 3h window ending at the selected time
   const endTime = time ? new Date(time) : new Date();
-  const startTime = new Date(endTime.getTime() - 2 * 60 * 60 * 1000);
+  const startTime = new Date(endTime.getTime() - 3 * 60 * 60 * 1000);
 
   const params = new URLSearchParams({
     service: 'WFS',
@@ -47,7 +47,7 @@ export async function fetchAQStations(time) {
     request: 'getFeature',
     storedquery_id: 'fmi::observations::airquality::hourly::simple',
     bbox: '19,59,32,71',
-    parameters: 'AQINDEX',
+    parameters: 'AQINDEX_PT1H_avg',
     starttime: startTime.toISOString(),
     endtime: endTime.toISOString(),
   });
