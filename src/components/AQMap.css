@@ -1,0 +1,50 @@
+.aq-map {
+  flex: 1;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.aq-map__leaflet {
+  flex: 1;
+  width: 100%;
+}
+
+.aq-map__overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.6);
+  z-index: 1000;
+}
+
+.aq-map__overlay--error {
+  font-size: 14px;
+  color: #b91c1c;
+  background: rgba(255, 255, 255, 0.85);
+}
+
+.aq-map__time-badge {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.6);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 20px;
+  z-index: 1000;
+  pointer-events: none;
+}
+
+.aq-map__tooltip {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 13px;
+  line-height: 1.4;
+}

@@ -6,6 +6,7 @@ import { AQCard } from './components/AQCard';
 import { AQChart } from './components/AQChart';
 import { Warning } from './components/Warning';
 import { AQDetails } from './components/AQDetails';
+import { AQMap } from './components/AQMap';
 import { subscribePush } from './services/push';
 import './App.css';
 
@@ -59,6 +60,7 @@ export default function App() {
   const suggestTimer = useRef(null);
   const [isSearchedLocation, setIsSearchedLocation] = useState(false);
   const [selectedHour, setSelectedHour] = useState(null);
+  const [view, setView] = useState('main');
   const defaultLocation = useRef(null);
   const defaultLocationName = useRef('');
 
@@ -326,6 +328,10 @@ export default function App() {
             </ul>
           )}
         </div>
+        <div className="app-view-tabs">
+          <button className={`app-view-tab${view === 'main' ? ' app-view-tab--active' : ''}`} onClick={() => setView('main')}>Tiedot</button>
+          <button className={`app-view-tab${view === 'map' ? ' app-view-tab--active' : ''}`} onClick={() => setView('map')}>Kartta</button>
+        </div>
       </header>
 
 
@@ -339,36 +345,40 @@ export default function App() {
         </div>
       )}
 
-      <main className="app-main">
-        <AQCard
-          currentIdx={displayIdx}
-          trend={displayTrend}
-          currentTime={displayTime}
-          isForecast={selectedHour?.isForecast ?? false}
-        />
-
-        {displayIdx !== null && (
-          <Warning
-            warning={displayWarning}
+      {view === 'main' ? (
+        <main className="app-main">
+          <AQCard
             currentIdx={displayIdx}
             trend={displayTrend}
+            currentTime={displayTime}
+            isForecast={selectedHour?.isForecast ?? false}
           />
-        )}
 
-        {aqData?.hourly?.length > 0 && (
-          <AQChart
-            hourly={aqData.hourly}
-            selectedHour={selectedHour}
-            onSelectHour={h => setSelectedHour(
-              prev => prev?.time.getTime() === h.time.getTime() ? null : h
-            )}
-          />
-        )}
+          {displayIdx !== null && (
+            <Warning
+              warning={displayWarning}
+              currentIdx={displayIdx}
+              trend={displayTrend}
+            />
+          )}
 
-        {displayPollutants && <AQDetails pollutants={displayPollutants} pollen={pollenData} />}
+          {aqData?.hourly?.length > 0 && (
+            <AQChart
+              hourly={aqData.hourly}
+              selectedHour={selectedHour}
+              onSelectHour={h => setSelectedHour(
+                prev => prev?.time.getTime() === h.time.getTime() ? null : h
+              )}
+            />
+          )}
 
-        {error && <p className="app-error">{error}</p>}
-      </main>
+          {displayPollutants && <AQDetails pollutants={displayPollutants} pollen={pollenData} />}
+
+          {error && <p className="app-error">{error}</p>}
+        </main>
+      ) : (
+        <AQMap selectedHour={selectedHour} />
+      )}
     </div>
   );
 }
