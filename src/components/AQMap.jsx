@@ -36,6 +36,7 @@ export function AQMap({ selectedHour }) {
 
   // Fetch ENFUSER PNG from backend (cached 30min server-side)
   useEffect(() => {
+    console.log('[AQMap] SERVER:', SERVER);
     if (!SERVER) return;
     // Add timestamp rounded to 30min to bust cache when data refreshes
     const slot = Math.floor(Date.now() / (30 * 60 * 1000));
