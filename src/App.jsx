@@ -40,7 +40,7 @@ async function geocodeSearch(query) {
 }
 
 export default function App() {
-  const [theme, setTheme] = useState(() => localStorage.getItem('pollyair-theme') || 'auto');
+  const [theme, setTheme] = useState(() => localStorage.getItem('pollyair-theme') || 'dark');
 
   useEffect(() => {
     const root = document.documentElement;
