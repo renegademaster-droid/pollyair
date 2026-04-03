@@ -15,7 +15,7 @@
 }
 
 .enfuser-overlay--screen {
-  mix-blend-mode: screen;
+  mix-blend-mode: color;
 }
 
 .aq-map__overlay {
