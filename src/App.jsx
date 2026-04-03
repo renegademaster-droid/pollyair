@@ -396,7 +396,7 @@ export default function App() {
           {error && <p className="app-error">{error}</p>}
         </main>
       ) : (
-        <AQMap selectedHour={selectedHour} isDark={isDark} />
+        <AQMap selectedHour={selectedHour} isDark={isDark} location={location} />
       )}
     </div>
   );

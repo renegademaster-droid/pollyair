@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
 import { MapContainer, TileLayer, CircleMarker, Tooltip, useMap } from 'react-leaflet';
 import { fetchAQStations } from '../services/aqmap';
@@ -8,14 +8,38 @@ import './AQMap.css';
 
 // ENFUSER coverage: Helsinki metropolitan area
 const ENFUSER_BOUNDS = [[60.1321, 24.58], [60.368, 25.1998]];
+const ENFUSER_CENTER = [60.25, 24.89]; // Helsinki metro center
 const FINLAND_CENTER = [65, 26];
 const FINLAND_ZOOM   = 5;
 
 const SERVER = import.meta.env.VITE_PUSH_SERVER_URL?.trim();
 
+function isInEnfuserBounds(lat, lng) {
+  return lat >= ENFUSER_BOUNDS[0][0] && lat <= ENFUSER_BOUNDS[1][0]
+      && lng >= ENFUSER_BOUNDS[0][1] && lng <= ENFUSER_BOUNDS[1][1];
+}
+
 function MapResizer() {
   const map = useMap();
   useEffect(() => { setTimeout(() => map.invalidateSize(), 50); }, [map]);
+  return null;
+}
+
+function MapFitter({ location }) {
+  const map = useMap();
+  const fitted = useRef(false);
+  useEffect(() => {
+    if (fitted.current) return;
+    fitted.current = true;
+    setTimeout(() => {
+      map.invalidateSize();
+      if (location && isInEnfuserBounds(location.lat, location.lng)) {
+        map.setView([location.lat, location.lng], 13);
+      } else {
+        map.fitBounds(ENFUSER_BOUNDS, { padding: [0, 0] });
+      }
+    }, 60);
+  }, [map, location]);
   return null;
 }
 
@@ -49,7 +73,7 @@ function EnfuserOverlay({ url, setEnfuserLoading }) {
   return null;
 }
 
-export function AQMap({ selectedHour, isDark }) {
+export function AQMap({ selectedHour, isDark, location }) {
   const [stations, setStations] = useState([]);
   const [loading,  setLoading]  = useState(false);
   const [error,    setError]    = useState(false);
@@ -77,12 +101,13 @@ export function AQMap({ selectedHour, isDark }) {
   return (
     <div className="aq-map">
       <MapContainer
-        center={FINLAND_CENTER}
-        zoom={FINLAND_ZOOM}
+        center={ENFUSER_CENTER}
+        zoom={11}
         className="aq-map__leaflet"
         zoomControl={false}
       >
         <MapResizer />
+        <MapFitter location={location} />
         <TileLayer
           url={`https://{s}.basemaps.cartocdn.com/${isDark ? 'dark_nolabels' : 'light_nolabels'}/{z}/{x}/{y}{r}.png`}
           attribution='&copy; <a href="https://carto.com/">CARTO</a> &copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>'
