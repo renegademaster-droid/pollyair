@@ -29,8 +29,9 @@ export function AQCard({ currentIdx, trend, currentTime, isForecast }) {
 
   return (
     <div className="aq-card" style={{
-      background: `linear-gradient(150deg, ${AQ.bgColors[currentIdx]}, ${darken(AQ.bgColors[currentIdx])})`,
-      border: `8px solid ${AQ.textColors[currentIdx]}55`,
+      background: `linear-gradient(150deg, ${AQ.bgColors[currentIdx]}, ${darken(AQ.bgColors[currentIdx])}) padding-box,
+                   linear-gradient(150deg, ${AQ.textColors[currentIdx]}44, ${AQ.textColors[currentIdx]}99) border-box`,
+      border: '8px solid transparent',
     }}>
       <div className="aq-card__index" style={{ color: AQ.colors[currentIdx] }}>
         {currentIdx}
