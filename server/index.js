@@ -167,6 +167,7 @@ function enfuserAqRgb(aqFloat) {
 const DOWNSAMPLE = 8;
 let enfuserCache = null;
 let enfuserCacheTime = 0;
+let enfuserFetchPromise = null;
 const ENFUSER_TTL = 30 * 60 * 1000;
 
 async function fetchEnfuserPng() {
@@ -233,17 +234,30 @@ async function fetchEnfuserPng() {
   });
 }
 
+function getEnfuserPng() {
+  const now = Date.now();
+  if (enfuserCache && now - enfuserCacheTime < ENFUSER_TTL) {
+    return Promise.resolve(enfuserCache);
+  }
+  if (!enfuserFetchPromise) {
+    enfuserFetchPromise = fetchEnfuserPng()
+      .then(buf => {
+        enfuserCache = buf;
+        enfuserCacheTime = Date.now();
+        console.log(`[enfuser] Välimuisti päivitetty, ${(buf.length / 1024).toFixed(0)} KB`);
+        return buf;
+      })
+      .finally(() => { enfuserFetchPromise = null; });
+  }
+  return enfuserFetchPromise;
+}
+
 app.get('/api/enfuser-map', async (req, res) => {
   try {
-    const now = Date.now();
-    if (!enfuserCache || now - enfuserCacheTime > ENFUSER_TTL) {
-      enfuserCache = await fetchEnfuserPng();
-      enfuserCacheTime = now;
-      console.log(`[enfuser] Välimuisti päivitetty, ${(enfuserCache.length / 1024).toFixed(0)} KB`);
-    }
+    const buf = await getEnfuserPng();
     res.set('Content-Type', 'image/png');
     res.set('Cache-Control', 'public, max-age=1800');
-    res.send(enfuserCache);
+    res.send(buf);
   } catch (err) {
     console.error('[enfuser] Virhe:', err.message);
     res.status(503).json({ error: err.message });
@@ -251,15 +265,15 @@ app.get('/api/enfuser-map', async (req, res) => {
 });
 
 // Refresh ENFUSER cache every 2h (model runs every 2h)
-cron.schedule('10 */2 * * *', async () => {
-  try {
-    enfuserCache = await fetchEnfuserPng();
-    enfuserCacheTime = Date.now();
-    console.log('[enfuser] Cron: välimuisti päivitetty');
-  } catch (e) {
-    console.warn('[enfuser] Cron päivitys epäonnistui:', e.message);
-  }
+cron.schedule('10 */2 * * *', () => {
+  enfuserCacheTime = 0; // invalidate so next request re-fetches
+  getEnfuserPng().catch(e => console.warn('[enfuser] Cron päivitys epäonnistui:', e.message));
 });
+
+// Warm up ENFUSER cache on startup
+setTimeout(() => {
+  getEnfuserPng().catch(e => console.warn('[enfuser] Käynnistyslämmitys epäonnistui:', e.message));
+}, 3000);
 
 // ─────────────────────────────────────────────────────────────────────────────
 

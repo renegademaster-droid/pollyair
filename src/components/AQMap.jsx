@@ -19,13 +19,32 @@ function MapResizer() {
   return null;
 }
 
-function EnfuserOverlay({ url }) {
+function EnfuserOverlay({ url, setEnfuserLoading }) {
   const map = useMap();
   useEffect(() => {
     if (!url) return;
-    const overlay = L.imageOverlay(url, ENFUSER_BOUNDS, { opacity: 0.85, zIndex: 200 });
-    overlay.addTo(map);
-    return () => overlay.remove();
+    let aborted = false;
+    let overlay = null;
+    let objectUrl = null;
+
+    setEnfuserLoading(true);
+    fetch(url)
+      .then(res => { if (!res.ok) throw new Error(`HTTP ${res.status}`); return res.blob(); })
+      .then(blob => {
+        if (aborted) return;
+        objectUrl = URL.createObjectURL(blob);
+        overlay = L.imageOverlay(objectUrl, ENFUSER_BOUNDS, { opacity: 0.85, zIndex: 200 });
+        overlay.addTo(map);
+        setEnfuserLoading(false);
+      })
+      .catch(() => { if (!aborted) setEnfuserLoading(false); });
+
+    return () => {
+      aborted = true;
+      overlay?.remove();
+      if (objectUrl) URL.revokeObjectURL(objectUrl);
+      setEnfuserLoading(false);
+    };
   }, [url, map]);
   return null;
 }
@@ -34,6 +53,7 @@ export function AQMap({ selectedHour, isDark }) {
   const [stations, setStations] = useState([]);
   const [loading,  setLoading]  = useState(false);
   const [error,    setError]    = useState(false);
+  const [enfuserLoading, setEnfuserLoading] = useState(false);
 
   const enfuserUrl = SERVER
     ? `${SERVER}/api/enfuser-map?v=${Math.floor(Date.now() / (30 * 60 * 1000))}`
@@ -69,7 +89,7 @@ export function AQMap({ selectedHour, isDark }) {
         />
 
         {/* ENFUSER high-res overlay for Helsinki metro */}
-        <EnfuserOverlay url={enfuserUrl} />
+        <EnfuserOverlay url={enfuserUrl} setEnfuserLoading={setEnfuserLoading} />
 
         {/* Station dots across Finland */}
         {stations.map((s, i) => (
@@ -106,6 +126,9 @@ export function AQMap({ selectedHour, isDark }) {
       )}
       {timeLabel && !loading && (
         <div className="aq-map__time-badge">{timeLabel}</div>
+      )}
+      {enfuserLoading && (
+        <div className="aq-map__notice">Ladataan ilmanlaatukarttaa...</div>
       )}
       {!SERVER && (
         <div className="aq-map__notice">ENFUSER ei käytössä (ei palvelinyhteyttä)</div>
