@@ -203,6 +203,18 @@ export function processAQData(observations, forecast) {
 
   const last = (s) => s?.length ? s[s.length - 1].value : null;
 
+  // Build per-hour pollutant map for forecast hours
+  const forecastPollutantsMap = new Map();
+  for (const param of ['no2', 'o3', 'pm10', 'pm25']) {
+    const series = fcast[param] ||
+      Object.entries(fcast).find(([k]) => k.startsWith(param))?.[1] || [];
+    for (const { time, value } of series) {
+      const key = time.toISOString().slice(0, 13);
+      if (!forecastPollutantsMap.has(key)) forecastPollutantsMap.set(key, {});
+      forecastPollutantsMap.get(key)[param] = value;
+    }
+  }
+
   return {
     currentIdx,
     currentTime: latest?.time ?? null,
@@ -215,6 +227,7 @@ export function processAQData(observations, forecast) {
       pm25: last(obs.pm25),
       pm10: last(obs.pm10),
     },
+    forecastPollutantsMap,
     hasForecast: forecastSeries.length > 0,
   };
 }
