@@ -57,10 +57,16 @@
   margin-bottom: 8px;
 }
 
+.aqd-dots-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
 .aqd-dots {
   display: flex;
   gap: 4px;
-  margin-bottom: 6px;
 }
 
 .aqd-dot {
@@ -73,6 +79,7 @@
 .aqd-limit {
   font-size: 12px;
   color: var(--color-text-muted);
+  text-align: right;
 }
 
 .aq-details__title--pollen {

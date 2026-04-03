@@ -84,12 +84,14 @@ export function AQDetails({ pollutants, pollen }) {
                     <span className="aqd-value">{Math.round(value)} <span className="aqd-unit">µg/m³</span></span>
                   </div>
                   <div className="aqd-desc">{DESC[key]}</div>
-                  <div className="aqd-dots">
-                    {dots.map((filled, i) => (
-                      <span key={i} className="aqd-dot" style={{ background: filled ? color : 'var(--color-border)' }} />
-                    ))}
+                  <div className="aqd-dots-row">
+                    <div className="aqd-dots">
+                      {dots.map((filled, i) => (
+                        <span key={i} className="aqd-dot" style={{ background: filled ? color : 'var(--color-border)' }} />
+                      ))}
+                    </div>
+                    <div className="aqd-limit">WHO-raja {limit} µg/m³</div>
                   </div>
-                  <div className="aqd-limit">WHO-raja {limit} µg/m³</div>
                 </div>
               );
             })}
@@ -111,12 +113,14 @@ export function AQDetails({ pollutants, pollen }) {
                     <span className="aqd-name">{POLLEN_LABELS[key]}</span>
                     <span className="aqd-value">{Math.round(value)} <span className="aqd-unit">jr/m³</span></span>
                   </div>
-                  <div className="aqd-dots">
-                    {dots.map((filled, i) => (
-                      <span key={i} className="aqd-dot" style={{ background: filled ? color : 'var(--color-border)' }} />
-                    ))}
+                  <div className="aqd-dots-row">
+                    <div className="aqd-dots">
+                      {dots.map((filled, i) => (
+                        <span key={i} className="aqd-dot" style={{ background: filled ? color : 'var(--color-border)' }} />
+                      ))}
+                    </div>
+                    <div className="aqd-limit">Korkea raja {limit} jr/m³</div>
                   </div>
-                  <div className="aqd-limit">Korkea raja {limit} jr/m³</div>
                 </div>
               );
             })}
