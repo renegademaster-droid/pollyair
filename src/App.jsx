@@ -8,6 +8,7 @@ import { Warning } from './components/Warning';
 import { AQDetails } from './components/AQDetails';
 import { AQMap } from './components/AQMap';
 import { subscribePush } from './services/push';
+import { prefetchEnfuserMap } from './services/enfuser';
 import './App.css';
 
 async function reverseGeocode(lat, lng) {
@@ -148,6 +149,9 @@ export default function App() {
   useEffect(() => {
     if (location) fetchData(location.lat, location.lng);
   }, [location, fetchData]);
+
+  // Prefetch ENFUSER map in background on first load
+  useEffect(() => { prefetchEnfuserMap(); }, []);
 
   // Auto-refresh every 10 min
   useEffect(() => {

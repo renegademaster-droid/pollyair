@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
 import { MapContainer, TileLayer, CircleMarker, Tooltip, useMap } from 'react-leaflet';
 import { fetchAQStations } from '../services/aqmap';
+import { getEnfuserBlobUrl, ENFUSER_SERVER } from '../services/enfuser';
 import { AQ } from '../services/airquality';
 import 'leaflet/dist/leaflet.css';
 import './AQMap.css';
@@ -9,10 +10,6 @@ import './AQMap.css';
 // ENFUSER coverage: Helsinki metropolitan area
 const ENFUSER_BOUNDS = [[60.1321, 24.58], [60.368, 25.1998]];
 const ENFUSER_CENTER = [60.25, 24.89]; // Helsinki metro center
-const FINLAND_CENTER = [65, 26];
-const FINLAND_ZOOM   = 5;
-
-const SERVER = import.meta.env.VITE_PUSH_SERVER_URL?.trim();
 
 function isInEnfuserBounds(lat, lng) {
   return lat >= ENFUSER_BOUNDS[0][0] && lat <= ENFUSER_BOUNDS[1][0]
@@ -43,21 +40,17 @@ function MapFitter({ location }) {
   return null;
 }
 
-function EnfuserOverlay({ url, setEnfuserLoading }) {
+function EnfuserOverlay({ setEnfuserLoading }) {
   const map = useMap();
   useEffect(() => {
-    if (!url) return;
     let aborted = false;
     let overlay = null;
-    let objectUrl = null;
 
     setEnfuserLoading(true);
-    fetch(url)
-      .then(res => { if (!res.ok) throw new Error(`HTTP ${res.status}`); return res.blob(); })
-      .then(blob => {
-        if (aborted) return;
-        objectUrl = URL.createObjectURL(blob);
-        overlay = L.imageOverlay(objectUrl, ENFUSER_BOUNDS, { opacity: 0.85, zIndex: 200 });
+    getEnfuserBlobUrl()
+      .then(blobUrl => {
+        if (aborted || !blobUrl) return;
+        overlay = L.imageOverlay(blobUrl, ENFUSER_BOUNDS, { opacity: 0.85, zIndex: 200 });
         overlay.addTo(map);
         setEnfuserLoading(false);
       })
@@ -66,10 +59,9 @@ function EnfuserOverlay({ url, setEnfuserLoading }) {
     return () => {
       aborted = true;
       overlay?.remove();
-      if (objectUrl) URL.revokeObjectURL(objectUrl);
       setEnfuserLoading(false);
     };
-  }, [url, map]);
+  }, [map]);
   return null;
 }
 
@@ -78,10 +70,6 @@ export function AQMap({ selectedHour, isDark, location }) {
   const [loading,  setLoading]  = useState(false);
   const [error,    setError]    = useState(false);
   const [enfuserLoading, setEnfuserLoading] = useState(false);
-
-  const enfuserUrl = SERVER
-    ? `${SERVER}/api/enfuser-map?v=${Math.floor(Date.now() / (30 * 60 * 1000))}`
-    : null;
 
   // Fetch station data (for dots + rest-of-Finland context)
   useEffect(() => {
@@ -92,7 +80,6 @@ export function AQMap({ selectedHour, isDark, location }) {
       .then(data => { setStations(data); setLoading(false); })
       .catch(() => { setError(true); setLoading(false); });
   }, [selectedHour]);
-
 
   const timeLabel = selectedHour && !selectedHour.isForecast
     ? selectedHour.time.toLocaleTimeString('fi-FI', { hour: '2-digit', minute: '2-digit' })
@@ -114,7 +101,7 @@ export function AQMap({ selectedHour, isDark, location }) {
         />
 
         {/* ENFUSER high-res overlay for Helsinki metro */}
-        <EnfuserOverlay url={enfuserUrl} setEnfuserLoading={setEnfuserLoading} />
+        {ENFUSER_SERVER && <EnfuserOverlay setEnfuserLoading={setEnfuserLoading} />}
 
         {/* Station dots across Finland */}
         {stations.map((s, i) => (
@@ -155,7 +142,7 @@ export function AQMap({ selectedHour, isDark, location }) {
       {enfuserLoading && (
         <div className="aq-map__notice">Ladataan ilmanlaatukarttaa...</div>
       )}
-      {!SERVER && (
+      {!ENFUSER_SERVER && (
         <div className="aq-map__notice">ENFUSER ei käytössä (ei palvelinyhteyttä)</div>
       )}
 

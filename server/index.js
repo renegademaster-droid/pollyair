@@ -116,6 +116,14 @@ async function checkAndNotify() {
 // Check every 30 minutes
 cron.schedule('*/30 * * * *', checkAndNotify);
 
+// Keep-alive: ping self every 10 min to prevent Render free tier hibernation
+const SELF_URL = process.env.RENDER_EXTERNAL_URL;
+if (SELF_URL) {
+  cron.schedule('*/10 * * * *', () => {
+    fetch(`${SELF_URL}/health`).catch(() => {});
+  });
+}
+
 // --- API endpoints ---
 
 app.get('/vapid-public-key', (req, res) => {
