@@ -92,9 +92,18 @@
 }
 
 .aqd-sheet-text {
-  padding: 16px;
+  padding: 16px 16px 0;
   font-size: 15px;
   color: var(--color-text);
   line-height: 1.6;
   margin: 0;
+}
+
+.aqd-sheet-text:last-child {
+  padding-bottom: 16px;
+}
+
+.aqd-sheet-text + .aqd-sheet-text {
+  padding-top: 12px;
+  border-top: 1px solid var(--color-border);
 }
