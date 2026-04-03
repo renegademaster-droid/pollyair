@@ -42,7 +42,9 @@ export function AQCard({ currentIdx, trend, currentTime, isForecast }) {
         {TREND_ICON[trend]}&nbsp;{TREND_LABEL[trend]}
       </div>
       {timeStr && (
-        <div className="aq-card__time">{isForecast ? 'Ennuste klo' : 'Mitattu klo'} {timeStr}</div>
+        <div className="aq-card__time" style={{ color: AQ.textColors[currentIdx], opacity: 0.75 }}>
+          {isForecast ? 'Ennuste klo' : 'Mitattu klo'} {timeStr}
+        </div>
       )}
     </div>
   );
