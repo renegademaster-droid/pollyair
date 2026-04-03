@@ -79,7 +79,9 @@ export default function App() {
   const searchInputRef = useRef(null);
   const [isSearchedLocation, setIsSearchedLocation] = useState(false);
   const [selectedHour, setSelectedHour] = useState(null);
-  const [view, setView] = useState('main');
+  const [view, setView] = useState(() => localStorage.getItem('pollyair-view') || 'main');
+
+  useEffect(() => { localStorage.setItem('pollyair-view', view); }, [view]);
   const defaultLocation = useRef(null);
   const defaultLocationName = useRef('');
 
