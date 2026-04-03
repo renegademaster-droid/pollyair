@@ -10,6 +10,14 @@
   width: 100%;
 }
 
+.enfuser-overlay--multiply {
+  mix-blend-mode: multiply;
+}
+
+.enfuser-overlay--screen {
+  mix-blend-mode: screen;
+}
+
 .aq-map__overlay {
   position: absolute;
   inset: 0;

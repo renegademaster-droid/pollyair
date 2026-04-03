@@ -89,7 +89,7 @@ function NeighborhoodLabels() {
   return null;
 }
 
-function EnfuserOverlay({ setEnfuserLoading }) {
+function EnfuserOverlay({ setEnfuserLoading, isDark }) {
   const map = useMap();
   useEffect(() => {
     let aborted = false;
@@ -99,7 +99,11 @@ function EnfuserOverlay({ setEnfuserLoading }) {
     getEnfuserBlobUrl()
       .then(blobUrl => {
         if (aborted || !blobUrl) return;
-        overlay = L.imageOverlay(blobUrl, ENFUSER_BOUNDS, { opacity: 0.85, zIndex: 200 });
+        overlay = L.imageOverlay(blobUrl, ENFUSER_BOUNDS, {
+          opacity: 0.9,
+          zIndex: 200,
+          className: isDark ? 'enfuser-overlay--screen' : 'enfuser-overlay--multiply',
+        });
         overlay.addTo(map);
         setEnfuserLoading(false);
       })
@@ -110,7 +114,7 @@ function EnfuserOverlay({ setEnfuserLoading }) {
       overlay?.remove();
       setEnfuserLoading(false);
     };
-  }, [map]);
+  }, [map, isDark]);
   return null;
 }
 
@@ -150,7 +154,7 @@ export function AQMap({ selectedHour, isDark, location }) {
         />
 
         {/* ENFUSER high-res overlay for Helsinki metro */}
-        {ENFUSER_SERVER && <EnfuserOverlay setEnfuserLoading={setEnfuserLoading} />}
+        {ENFUSER_SERVER && <EnfuserOverlay setEnfuserLoading={setEnfuserLoading} isDark={isDark} />}
 
         {/* Neighbourhood labels above ENFUSER overlay */}
         <NeighborhoodLabels />
