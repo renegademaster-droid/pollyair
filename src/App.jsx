@@ -63,7 +63,7 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [pollenData, setPollenData] = useState(null);
-  const [refreshing, setRefreshing] = useState(false);
+  const [refreshing, setRefreshing] = useState(false); // used by pull-to-refresh
   const [showNotifBanner, setShowNotifBanner] = useState(false);
   const [pullDistance, setPullDistance] = useState(0);
   const pullStartY = useRef(null);
@@ -332,13 +332,6 @@ export default function App() {
                 </svg>
               </button>
             )}
-            <button
-              className={`app-refresh${refreshing ? ' app-refresh--spinning' : ''}`}
-              onClick={handleRefresh}
-              aria-label="Päivitä"
-            >
-              ↻
-            </button>
             <button className="app-theme-toggle" onClick={toggleTheme} aria-label="Vaihda teema">
               {isDark ? '☀' : '☾'}
             </button>

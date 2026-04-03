@@ -226,19 +226,6 @@
   color: var(--color-text);
 }
 
-.app-refresh {
-  font-size: 22px;
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: var(--color-text-muted);
-  padding: 6px;
-  border-radius: 8px;
-  line-height: 1;
-  transition: color 0.15s;
-}
-
-.app-refresh:hover { color: var(--color-text); }
 
 .app-theme-toggle {
   font-size: 18px;
@@ -250,13 +237,14 @@
   border-radius: 8px;
   line-height: 1;
   transition: color 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
 }
 
 .app-theme-toggle:hover { color: var(--color-text); }
-
-.app-refresh--spinning {
-  animation: spin 0.7s linear infinite;
-}
 
 .app-header-right {
   display: flex;
