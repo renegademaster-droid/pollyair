@@ -57,7 +57,7 @@ export function AQChart({ hourly, selectedHour, onSelectHour }) {
                 <div
                   className={`aqc-bar${h.isForecast ? ' aqc-bar--forecast' : ''}`}
                   style={{
-                    height: `${h.aqindex * 8}px`,
+                    height: `${h.aqindex * 10}px`,
                     background: AQ.colors[h.aqindex],
                     opacity: h.isForecast ? 0.5 : 1,
                   }}

@@ -54,7 +54,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  min-width: 36px;
+  min-width: 44px;
   flex-shrink: 0;
   position: relative;
   cursor: pointer;
@@ -80,15 +80,15 @@
 }
 
 .aqc-bar-wrap {
-  height: 48px;
+  height: 60px;
   display: flex;
   align-items: flex-end;
   padding-bottom: 2px;
 }
 
 .aqc-bar {
-  width: 24px;
-  border-radius: 3px 3px 0 0;
+  width: 30px;
+  border-radius: 4px 4px 0 0;
   transition: height 0.3s ease;
   min-height: 3px;
 }
@@ -104,7 +104,7 @@
 }
 
 .aqc-hour {
-  font-size: 11px;
+  font-size: 13px;
   color: var(--color-text-muted);
   margin-top: 4px;
 }
