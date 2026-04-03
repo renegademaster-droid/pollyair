@@ -103,6 +103,13 @@ export function AQMap({ selectedHour, isDark, location }) {
         {/* ENFUSER high-res overlay for Helsinki metro */}
         {ENFUSER_SERVER && <EnfuserOverlay setEnfuserLoading={setEnfuserLoading} />}
 
+        {/* Labels on top of ENFUSER overlay */}
+        <TileLayer
+          url={`https://{s}.basemaps.cartocdn.com/${isDark ? 'dark_only_labels' : 'light_only_labels'}/{z}/{x}/{y}{r}.png`}
+          zIndex={300}
+          pane="overlayPane"
+        />
+
         {/* Station dots across Finland */}
         {stations.map((s, i) => (
           <CircleMarker
