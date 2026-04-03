@@ -82,6 +82,11 @@
   text-align: right;
 }
 
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .aqd-limit { color: var(--color-text-muted); }
+}
+:root[data-theme="dark"] .aqd-limit { color: var(--color-text-muted); }
+
 .aq-details__title--pollen {
   margin-top: 32px;
 }
