@@ -296,7 +296,7 @@ export default function App() {
   const displayWarning = displayIdx !== null && (
     displayIdx >= 4 || (displayIdx >= 3 && displayTrend === 'rising')
   );
-  const displayPollutants = selectedHour?.isForecast ? null : aqData?.pollutants ?? null;
+  const displayPollutants = aqData?.pollutants ?? null;
 
   const pulled = pullDistance >= PULL_THRESHOLD;
 
