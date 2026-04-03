@@ -75,16 +75,16 @@ function MapFitter({ location }) {
 function NeighborhoodLabels() {
   const map = useMap();
   useEffect(() => {
-    const group = L.layerGroup();
-    NEIGHBORHOOD_LABELS.forEach(({ name, lat, lng }) => {
-      const icon = L.divIcon({ html: name, className: 'map-label', iconSize: null, iconAnchor: null });
-      L.marker([lat, lng], { icon, interactive: false, zIndexOffset: 500 }).addTo(group);
+    const markers = NEIGHBORHOOD_LABELS.map(({ name, lat, lng }) => {
+      const icon = L.divIcon({
+        html: `<span style="font-size:11px;font-weight:700;color:#000;white-space:nowrap;pointer-events:none;display:block;transform:translate(-50%,-50%)">${name}</span>`,
+        className: '',
+        iconSize: [0, 0],
+        iconAnchor: [0, 0],
+      });
+      return L.marker([lat, lng], { icon, interactive: false, zIndexOffset: 600 }).addTo(map);
     });
-
-    const update = () => { map.getZoom() >= 12 ? group.addTo(map) : group.remove(); };
-    map.on('zoomend', update);
-    update();
-    return () => { map.off('zoomend', update); group.remove(); };
+    return () => markers.forEach(m => m.remove());
   }, [map]);
   return null;
 }
