@@ -73,7 +73,6 @@
 
 .app-search-wrap {
   position: relative;
-  margin-top: 4px;
 }
 
 .app-search {
@@ -143,11 +142,55 @@
   font-size: 16px;
   cursor: pointer;
   transition: opacity 0.15s;
+  flex-shrink: 0;
 }
 
 .app-search-btn:disabled {
   opacity: 0.5;
   cursor: default;
+}
+
+.app-search-close {
+  flex-shrink: 0;
+  padding: 8px 10px;
+  border: none;
+  border-radius: 8px;
+  background: none;
+  color: var(--color-text-muted);
+  font-size: 15px;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.app-search-close:hover {
+  color: var(--color-text);
+}
+
+.app-search-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-text-muted);
+  padding: 6px;
+  border-radius: 8px;
+  line-height: 1;
+  transition: color 0.15s;
+}
+
+.app-search-toggle:hover {
+  color: var(--color-text);
+}
+
+.app-search-wrap {
+  animation: search-in 0.15s ease;
+}
+
+@keyframes search-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 .app-title {

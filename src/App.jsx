@@ -73,7 +73,9 @@ export default function App() {
   const [searching, setSearching] = useState(false);
   const [suggestions, setSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
   const suggestTimer = useRef(null);
+  const searchInputRef = useRef(null);
   const [isSearchedLocation, setIsSearchedLocation] = useState(false);
   const [selectedHour, setSelectedHour] = useState(null);
   const [view, setView] = useState('main');
@@ -164,6 +166,18 @@ export default function App() {
     setShowSuggestions(results.length > 0);
   };
 
+  const handleOpenSearch = () => {
+    setSearchOpen(true);
+    setTimeout(() => searchInputRef.current?.focus(), 50);
+  };
+
+  const handleCloseSearch = () => {
+    setSearchOpen(false);
+    setSearchQuery('');
+    setSuggestions([]);
+    setShowSuggestions(false);
+  };
+
   const handleSuggestionSelect = (result) => {
     setLocation({ lat: result.lat, lng: result.lng });
     setLocationName(result.name);
@@ -171,6 +185,7 @@ export default function App() {
     setSearchQuery('');
     setSuggestions([]);
     setShowSuggestions(false);
+    setSearchOpen(false);
   };
 
   const handleSearch = async (e) => {
@@ -184,6 +199,7 @@ export default function App() {
       setLocationName(result.name);
       setIsSearchedLocation(true);
       setSearchQuery('');
+      setSearchOpen(false);
     } catch {
       setError('Sijaintia ei löydy. Kokeile toista hakusanaa.');
     } finally {
@@ -307,7 +323,15 @@ export default function App() {
             )}
           </div>
           <div className="app-header-right">
-            {updatedStr && <span className="app-updated">{updatedStr}</span>}
+            {updatedStr && !searchOpen && <span className="app-updated">{updatedStr}</span>}
+            {!searchOpen && (
+              <button className="app-search-toggle" onClick={handleOpenSearch} aria-label="Hae">
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                  <circle cx="7.5" cy="7.5" r="5" />
+                  <line x1="11.5" y1="11.5" x2="16" y2="16" />
+                </svg>
+              </button>
+            )}
             <button
               className={`app-refresh${refreshing ? ' app-refresh--spinning' : ''}`}
               onClick={handleRefresh}
@@ -320,33 +344,38 @@ export default function App() {
             </button>
           </div>
         </div>
-        <div className="app-search-wrap">
-          <form className="app-search" onSubmit={handleSearch}>
-            <input
-              className="app-search-input"
-              type="search"
-              placeholder="Hae kaupunki tai sijainti..."
-              value={searchQuery}
-              onChange={handleQueryChange}
-              onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
-              onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
-              autoComplete="off"
-            />
-            <button className="app-search-btn" type="submit" disabled={searching}>
-              {searching ? '…' : '→'}
-            </button>
-          </form>
-          {showSuggestions && (
-            <ul className="app-suggestions">
-              {suggestions.map((s, i) => (
-                <li key={i} className="app-suggestion" onMouseDown={() => handleSuggestionSelect(s)}>
-                  <span className="app-suggestion-name">{s.name}</span>
-                  {s.detail && <span className="app-suggestion-detail">{s.detail}</span>}
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
+        {searchOpen && (
+          <div className="app-search-wrap">
+            <form className="app-search" onSubmit={handleSearch}>
+              <input
+                ref={searchInputRef}
+                className="app-search-input"
+                type="search"
+                placeholder="Hae kaupunki tai sijainti..."
+                value={searchQuery}
+                onChange={handleQueryChange}
+                onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
+                onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
+                onKeyDown={e => e.key === 'Escape' && handleCloseSearch()}
+                autoComplete="off"
+              />
+              <button className="app-search-btn" type="submit" disabled={searching}>
+                {searching ? '…' : '→'}
+              </button>
+              <button className="app-search-close" type="button" onClick={handleCloseSearch} aria-label="Sulje haku">✕</button>
+            </form>
+            {showSuggestions && (
+              <ul className="app-suggestions">
+                {suggestions.map((s, i) => (
+                  <li key={i} className="app-suggestion" onMouseDown={() => handleSuggestionSelect(s)}>
+                    <span className="app-suggestion-name">{s.name}</span>
+                    {s.detail && <span className="app-suggestion-detail">{s.detail}</span>}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        )}
         <div className="app-view-tabs">
           <button className={`app-view-tab${view === 'main' ? ' app-view-tab--active' : ''}`} onClick={() => setView('main')}>Tiedot</button>
           <button className={`app-view-tab${view === 'map' ? ' app-view-tab--active' : ''}`} onClick={() => setView('map')}>Kartta</button>
